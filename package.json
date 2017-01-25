@@ -1,0 +1,11 @@
+{
+  "name": "nw-spacecraft-editor",
+  "main": "index.html",
+  "window": {
+    //"fullscreen" : true,
+    //"icon": "icon.png",
+    "width": 1024,
+    "height": 768,
+    "toolbar": true
+  }
+}

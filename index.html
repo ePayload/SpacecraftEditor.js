@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>Spacecraft editor</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <!-- jQuery UI -->
+		<link type="text/css" href="css/custom-theme/jquery-ui-1.9.2.custom.css" rel="stylesheet" />
+		<script type="text/javascript" src="js/jquery-1.8.3.js"></script>
+		<script type="text/javascript" src="js/jquery-ui-1.9.2.custom.min.js"></script>
+		
+		<!-- File Saver -->
+		<script type="text/javascript" src="js/FileSaver.min.js"></script>
+		<!--script type="text/javascript" src="js/BlobBuilder.min.js"></script-->
+
+    <!-- Dat.GUI -->
+		<script type="text/javascript" src='js/dat.gui.min.js'></script>
+		
+    <!-- Three.js and libs -->
+    <script type="text/javascript" src="js/Three_r49.js"></script>
+		<script type="text/javascript" src="js/ray.js"></script>
+		<script type="text/javascript" src="js/triangle.js"></script>
+		<script type="text/javascript" src="js/SHWNormal.js"></script>
+		<script type="text/javascript" src="js/OBJLoader.js"></script>
+		<script type="text/javascript" src="js/Detector.js"></script>
+		<script type="text/javascript" src="js/Stats.js"></script>
+
+    <!-- Editor classes -->
+		<script type="text/javascript" src="js/camera_control.js"></script>
+		<script type="text/javascript" src="js/models_loader.js"></script>
+		<script type="text/javascript" src="js/contexts.js"></script>
+		<script type="text/javascript" src="js/modules.js"></script>
+		<script type="text/javascript" src="js/ships.js"></script>
+
+    <!-- Editor -->
+		<script type="text/javascript" src="js/editor.js"></script>
+
+		<style>
+			body {
+				font-family: Monospace;
+				-webkit-user-select: none;
+				background-color: #000000;
+			  color:White;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			#oldie { background-color: #ddd !important }
+			.loading {
+			  z-index: 10;
+			  width: 100px;
+			  height: 32px;
+			  font-weight:bold;
+			  position: absolute;
+			}
+			body {
+      	font-size: 62.5%;
+      }
+      #interface {
+        position:absolute;
+        left: 4px;
+        top:4px;
+        z-index:10;
+        width: 100%;
+        text-align:center;
+      }
+      #top_toolbar {
+      }
+      #left_toolbar {
+        text-align:left;
+        position:fixed;
+        left:4px;
+      }
+      #slider_grid {
+      }
+      /*label {
+        display: inline-block;
+        width: 5em;
+      }*/
+		</style>
+	</head>
+	<body>
+	  <input id="file_input" type="file" name="spacecraft_loader" accept="text/*.json" style="visibility:hidden;position:absolute;top:0;left:0" onchange="editor.load(this.files);this.value = null;" />
+	  <input style="display:none;position:absolute;top:0;left:0" id="saveFile" type="file" nwsaveas />
+	  <input style="display:none;position:absolute;top:0;left:0" id="saveFileSM" type="file" nwsaveas />
+	  <input style="display:none;position:absolute;top:0;left:0" id="saveFileJSON" type="file" nwsaveas />
+    <input style="display:none;position:absolute;top:0;left:0" id="saveFileSSS" type="file" nwsaveas />
+    <div id="interface_simulator" style="display:none;">
+    </div>
+	  <div id="interface" style="display:none;">
+      <table width="100%">
+        <tr>
+          <td align="left" width="35%">
+            <table>
+              <tr>
+                <td>
+                  <span id="file">
+                    <button id="new">Create new spacecraft</button><!--button id="db_open">Open spacecraft from database</button><button id="db_save">Save spacecraft to database</button--><button id="file_open">Open spacecraft from file</button><button id="file_save">Save spacecraft to file</button>
+                  </span>
+                  <button id="export_sss">Export spacecraft to Space Engine ".sss"</button>
+                </td>
+                <td>
+                  <span id="extended_toolbar" style="display:none;">
+                    <button id="export">Export spacecraft to Space Engine as single model ".sm"</button>
+                    <button id="export_obj">Export spacecraft to Third-Party editors ".obj"</button>
+                  </span>
+                </td>
+              </tr>
+            </table>
+          </td>
+          <td align="center" width="30%">
+            <span id="symmetry">
+              <input type="radio" id="sym_none" name="symmetry" /><label for="sym_none">Symmetry off</label><input type="radio" id="sym_two" name="symmetry" /><label for="sym_two">Symmetry two</label><input type="radio" id="sym_three" name="symmetry" /><label for="sym_three">Symmetry three</label><input type="radio" id="sym_six" name="symmetry" checked="checked" /><label for="sym_six">Symmetry six</label>
+            </span>
+          </td>
+          <td align="right" width="35%">
+            <span id="visibility">
+              <input type="checkbox" id="main_axis" checked="checked" /><label for="main_axis">Show main axis</label><input type="checkbox" id="grid" checked="checked" /><label for="grid">Show main grid</label><input type="checkbox" id="shadows" checked="checked" /><label for="shadows">Shadows</label><input type="checkbox" id="extended_toolbar_btn" /><label for="extended_toolbar_btn">Extended toolbar</label>
+            </span>
+          </td>
+        </tr>
+      </table>
+      <table width="100%">
+        <tr>
+          <td style="font-weight:bold; font-size: 8pt;" width="50px" align="left">Grid:</td>
+          <td colspan="6" title="Reference grid position"><div id="slider_grid"></div></td>
+          <td style="font-weight:bold; font-size: 12pt;" width="50px" id="amount">0</td>
+        </tr>
+        <tr>
+          <td style="font-weight:bold; font-size: 8pt;" align="left">Shield:</td>
+          <td width="50px">
+            <nobr>
+            <input type="checkbox" id="circular_shield" /><label for="circular_shield">Circular shield</label>
+            <input type="checkbox" id="flip_shield" /><label for="flip_shield">Flip shield</label>
+            </nobr>
+          </td>
+          <td title="Shield angle"><div id="slider_line"></div></td>
+          <td width="50px" style="font-weight:bold; font-size: 12pt;" id="line_amount">0</td>
+          <td title="Shield curve"><div id="slider_curve"></div></td>
+          <td width="50px" style="font-weight:bold; font-size: 12pt;" id="curve_amount">0</td>
+          <td title="Shield base radius"><div id="slider_radius"></div></td>
+          <td style="font-weight:bold; font-size: 12pt;" id="radius_amount">0</td>
+        </tr>
+      </table>
+      <span id="left_toolbar">
+        <span id="context" >
+          <input type="radio" id="empty" name="context" /><label for="empty">Nothing</label><br /><br />
+          <input type="radio" id="main_frame_com" name="context" checked="checked" /><label for="main_frame_com">Main frame with communications</label>
+          <input type="radio" id="main_frame_3_com" name="context" /><label for="main_frame_3_com">Main frame with communications x3</label>
+          <input type="radio" id="main_frame_9_com" name="context" /><label for="main_frame_9_com">Main frame with communications x9</label><br /><br />
+          <input type="radio" id="main_frame" name="context" /><label for="main_frame">Main frame</label>
+          <input type="radio" id="main_frame_3" name="context" /><label for="main_frame_3">Main frame x3</label>
+          <input type="radio" id="main_frame_9" name="context" /><label for="main_frame_9">Main frame x9</label><br /><br />
+          <input type="radio" id="sec_frame_com" name="context" /><label for="sec_frame_com">Secondary frame with communications</label>
+          <input type="radio" id="sec_frame" name="context" /><label for="sec_frame">Secondary frame</label><br /><br /><br />
+          <input type="radio" id="shild" name="context" /><label for="shild">Shield</label>
+          <input type="radio" id="shild_diamond" name="context" /><label for="shild_diamond">Diamond shield</label><br /><br />
+          <input type="radio" id="shild_silver" name="context" /><label for="shild_silver">Silver shield</label>
+          <input type="radio" id="shild_gold" name="context" /><label for="shild_gold">Gold shield</label><br /><br /><br />
+          <input type="radio" id="hyper_drive" name="context" /><label for="hyper_drive">Hyper drive</label><br /><br />
+          <input type="radio" id="hyper_ring_1" name="context" /><label for="hyper_ring_1">Ring Hyper drive size 1</label>
+          <input type="radio" id="hyper_ring_2" name="context" /><label for="hyper_ring_2">Ring Hyper drive size 2</label>
+          <input type="radio" id="hyper_ring_3" name="context" /><label for="hyper_ring_3">Ring Hyper drive size 3</label><br /><br />
+          <input type="radio" id="hyper_ring_4" name="context" /><label for="hyper_ring_4">Ring Hyper drive size 4</label>
+          <input type="radio" id="hyper_ring_5" name="context" /><label for="hyper_ring_5">Ring Hyper drive size 5</label>
+          <input type="radio" id="hyper_ring_6" name="context" /><label for="hyper_ring_6">Ring Hyper drive size 6</label><br /><br />
+          <input type="radio" id="hyper_ring_thick_1" name="context" /><label for="hyper_ring_thick_1">Thick Ring Hyper drive size 1</label>
+          <input type="radio" id="hyper_ring_thick_2" name="context" /><label for="hyper_ring_thick_2">Thick Ring Hyper drive size 2</label>
+          <input type="radio" id="hyper_ring_thick_3" name="context" /><label for="hyper_ring_thick_3">Thick Ring Hyper drive size 3</label><br /><br />
+          <input type="radio" id="hyper_ring_thick_4" name="context" /><label for="hyper_ring_thick_4">Thick Ring Hyper drive size 4</label>
+          <input type="radio" id="hyper_ring_thick_5" name="context" /><label for="hyper_ring_thick_5">Thick Ring Hyper drive size 5</label>
+          <input type="radio" id="hyper_ring_thick_6" name="context" /><label for="hyper_ring_thick_6">Thick Ring Hyper drive size 6</label><br /><br /><br />
+          <input type="radio" id="main_engine" name="context" /><label for="main_engine">Main nuclear fusion engine</label>
+          <input type="radio" id="main_engine_double" name="context" /><label for="main_engine_double">Main nuclear fusion engine double sided</label><br /><br />
+          <input type="radio" id="shunting_engine" name="context" /><label for="shunting_engine">Shunting engine</label>
+          <input type="radio" id="thruster" name="context" /><label for="thruster">Thruster</label><br /><br />
+          <input type="radio" id="radiator_lateral_2sided" name="context" /><label for="radiator_lateral_2sided">Radiator 2-sided</label>
+          <input type="radio" id="radiator_lateral_1sided" name="context" /><label for="radiator_lateral_1sided">Radiator 1-sided</label><br /><br />
+          <input type="radio" id="propellent_tank" name="context" /><label for="propellent_tank">Propellent tank (metallic H)</label>
+          <input type="radio" id="fuel_tank" name="context" /><label for="fuel_tank">Fuel tank (De+He3)</label><br /><br />
+          <input type="radio" id="toroidal_living_module" name="context" /><label for="toroidal_living_module">Toroidal habitat module</label>
+          <input type="radio" id="cargo" name="context" /><label for="cargo">Small cargo</label><br /><br />
+          <input type="radio" id="shuttle_deck_front" name="context" /><label for="shuttle_deck_front">Shuttle deck front attachment</label>
+          <input type="radio" id="shuttle_deck_back" name="context" /><label for="shuttle_deck_back">Shuttle deck back attachment</label><br /><br />
+          <!--input type="radio" id="telescope" name="context" /><label for="telescope">Navigation module</label-->
+          <input type="radio" id="antenna" name="context" /><label for="antenna">Communication and navigation module</label><br /><br />
+          <input type="radio" id="torpedo" name="context" /><label for="torpedo">Photon torpedo</label><br /><br />
+        </span>
+      </span>
+    </div>
+		<script type="text/javascript">
+      // Try to maximize window
+		  try {
+		    var gui = require('nw.gui');
+		    var win = gui.Window.get();
+			var fs = require("fs");
+		    win.maximize();
+		  } catch (e) { }
+     
+      // Create editor main object
+      var editor = new editor_engine();
+		  
+		  // Main toolbar
+		  $("#file").buttonset();
+		  $("#new").button({
+		    text: false,
+		    icons: {primary: "ui-icon-document"}
+		  }).click(function(){editor.clear()});
+
+		  /*$("#db_open").button({
+		    text: false,
+		    icons: {primary: "ui-icon-folder-open"}
+		  }).click(function(){});
+		  $("#db_save").button({
+		    text: false,
+		    icons: {primary: "ui-icon-folder-collapsed"}
+		  }).click(function(){});*/
+		  $("#file_open").button({
+		    text: false,
+		    icons: {primary: "ui-icon-folder-open"}
+		  }).click(function(){
+		    $("#file_input").click();
+		    //editor.json2ship(ships["Fast cargo ship"])
+		  });
+
+		  $("#saveFileJSON").change(function (evt) {
+		    var file_entry = $(this).val();
+		    this.value = null;
+		    var str = editor.ship2json();
+		    if (file_entry.indexOf(".json") < 0) {
+		      file_entry += ".json";
+		    }
+		    fs.writeFileSync(file_entry, str/*, function (err) {
+		      if (err) {
+		        console.log("Write failed: " + err);
+		        return;
+		      }
+		      console.log("Write completed.");
+		    }*/);
+		  });
+
+		  $("#file_save").button({
+		    text: false,
+		    icons: {primary: "ui-icon-folder-collapsed"}
+		  }).click(function(){
+        if (fs === undefined) {
+          var blob = new Blob([editor.ship2json()], { type: "text/js" });
+          saveAs(blob, "ship.json");
+        } else {
+          $("#saveFileJSON").trigger("click");
+        }
+		  });
+
+			$("#saveFile").change(function(evt) {
+			  var file_entry = $(this).val();
+			  this.value = null;
+			  var str = editor.generate_obj();
+			  if (file_entry.indexOf(".obj") < 0) {
+          file_entry += ".obj";
+			  }
+			  fs.writeFileSync(file_entry, str/*, function (err) {
+          if (err) {
+            //console.log("Write failed: " + err);
+            return;
+          }
+          //console.log("Write completed.");
+			  }*/);
+			});
+
+      $("#saveFileSSS").change(function (evt) {
+        var file_entry = $(this).val();
+        this.value = null;
+        var start = file_entry.lastIndexOf("\\") + 1;
+        if (start == 0) {
+          start = file_entry.lastIndexOf("/") + 1;
+        }
+        var end = file_entry.indexOf(".sss");
+        if (end < 0) {
+          end = file_entry.length;
+        }
+        var name = file_entry.slice(start, end);
+        
+        var str = editor.generate_ship_confg(name);
+        if (file_entry.indexOf(".sss") < 0) {
+          file_entry += ".sss";
+        }
+        fs.writeFileSync(file_entry, str/*, function (err) {
+          if (err) {
+            //console.log("Write failed: " + err);
+            return;
+          }
+          //console.log("Write completed.");
+        }*/);
+      });
+
+      $("#saveFileSM").change(function (evt) {
+        document.getElementById("interface").style.display = 'none';
+			  var file_entry = $(this).val();
+			  this.value = null;
+			  var arr_buffer = editor.generate_sm();
+        var buffer = new Buffer(arr_buffer.byteLength);
+        var byte_arr = new Uint8Array(arr_buffer);
+        for (var i = 0; i < arr_buffer.byteLength; ++i) {
+          buffer[i] = byte_arr[i];
+        }
+			  if (file_entry.indexOf(".sm") < 0) {
+          file_entry += ".sm";
+			  }
+			  fs.writeFileSync(file_entry, buffer/*, function (err) {
+          if (err) {
+            //console.log("Write failed: " + err);
+            return;
+          }
+          //console.log("Write completed.");
+			  }*/);
+			  document.getElementById("interface").style.display = 'block';
+			});
+      $("#export").button({
+			  text: false,
+			  icons: { primary: "ui-icon-arrowthickstop-1-s" }
+			}).click(function () {
+			  if (fs === undefined) {
+          var blob = new Blob([editor.generate_sm()], { type: "application/octet-stream" });
+          saveAs(blob, "ship.sm");
+        } else {
+          $("#saveFileSM").trigger("click");
+        }
+			});
+
+			$("#export_obj").button({
+			  text: false,
+			  icons: { primary: "ui-icon-arrowthickstop-1-s" }
+			}).click(function () {
+			  if (fs === undefined) {
+			  /*var bb = new BlobBuilder;
+			  bb.append(editor.generate_obj());
+			  var blob = bb.getBlob("application/octet-stream");*/
+			  var blob = new Blob([editor.generate_obj()], { type: "application/octet-stream" });
+			  saveAs(blob, "ship.obj");
+			  //saveAs(editor.generate_sm(), "ship.sm");
+			  } else {
+			    $("#saveFile").trigger("click");
+			  }
+			});
+			$("#export_sss").button({
+			  text: false,
+			  icons: { primary: "ui-icon-arrowthickstop-1-s" }
+			}).click(function () {
+			  if (fs === undefined) {
+			    var blob = new Blob([editor.generate_ship_confg()], { type: "application/octet-stream" });
+			    saveAs(blob, "ship.sss");
+			  } else {
+			    $("#saveFileSSS").trigger("click");
+			  }
+			});
+
+      $("#visibility").buttonset();
+		  $("#main_axis").button({
+		    text: false,
+		    icons: {primary: "ui-icon-main-axis"}
+		  }).click(function(){editor.set_main_axis_visible(this.checked)});
+		  $("#grid").button({
+		    text: false,
+		    icons: {primary: "ui-icon-grid"}
+		  }).click(function(){editor.set_grid_visible(this.checked)});
+		  $("#shadows").button({
+		    text: false,
+		    icons: {primary: "ui-icon-shadows"}
+		  }).click(function(){editor.set_shadows_visible(this.checked)});
+		  $("#extended_toolbar_btn").button({
+		    text: false,
+		    icons: { primary: "ui-icon-plus" }
+		  }).click(function () { document.getElementById("extended_toolbar").style.display = this.checked ? "block" : "none"; });
+
+		  $("#symmetry").buttonset();
+		  $("#sym_none").button({
+		    text: false,
+		    icons: { primary: "ui-icon-sym-none" }
+		  }).click(function () {editor.symmetry = 0;});
+		  $("#sym_two").button({
+		    text: false,
+		    icons: { primary: "ui-icon-sym-two" }
+		  }).click(function () {editor.symmetry = 2;});
+		  $("#sym_three").button({
+		    text: false,
+		    icons: { primary: "ui-icon-sym-three" }
+		  }).click(function () {editor.symmetry = 3;});
+		  $("#sym_six").button({
+		    text: false,
+		    icons: { primary: "ui-icon-sym-six" }
+		  }).click(function () {editor.symmetry = 6;});
+		  
+		  $("#circular_shield").button({
+		    text: false,
+		    icons: { primary: "ui-icon-radio-off" }
+		  }).click(function () {
+		    editor.set_circular_shield(this.checked);
+			  $( "#circular_shield" ).prop('checked', editor.get_circular_shield());
+			  $( "#circular_shield" ).button( "refresh" );
+		  });
+		  $("#flip_shield").button({
+		    text: false,
+		    icons: { primary: "ui-icon-arrowreturnthick-1-w" }
+		  }).click(function () {
+		    editor.set_flip_shield(this.checked);
+		    $("#flip_shield").prop('checked', editor.get_flip_shield());
+		    $("#flip_shield").button("refresh");
+		  });
+		  // Shield base radius slider
+		  $( "#slider_radius" ).slider({
+			  value: 0,
+			  min: 0,
+			  max: 500,
+			  slide: function( event, ui ) {
+				  editor.set_radius(ui.value);
+				  $( "#radius_amount" ).text("" + ui.value);
+			  }
+		  });
+		  
+		  // Shield curve slider
+		  $( "#slider_curve" ).slider({
+			  value: 0,
+			  min: -200,
+			  max: 200,
+			  slide: function( event, ui ) {
+				  editor.set_curve(ui.value);
+				  $( "#curve_amount" ).text("" + ui.value);
+			  }
+		  });
+
+		  // Shield line slider
+		  $( "#slider_line" ).slider({
+			  value: 0,
+			  min: -80,
+			  max: 80,
+			  slide: function( event, ui ) {
+				  editor.set_line(ui.value);
+				  $( "#line_amount" ).text("" + ui.value);
+			  }
+		  });
+
+		  // Grid position slider
+		  $( "#slider_grid" ).slider({
+			  value: 0,
+			  min: -1000,
+			  max: 1000,
+			  step: 10,
+			  slide: function( event, ui ) {
+				  editor.set_grid_pos(ui.value);//$( "#amount" ).val( "$" + ui.value );
+				  $( "#amount" ).text("" + ui.value);
+				  $( "#slider_radius" ).slider("option", "value", editor.get_radius());
+				  $( "#radius_amount" ).text("" + editor.get_radius());
+				  $( "#slider_line" ).slider("option", "value", editor.get_line());
+				  $( "#line_amount" ).text("" + editor.get_line());
+				  $( "#slider_curve" ).slider("option", "value", editor.get_curve());
+				  $( "#curve_amount" ).text("" + editor.get_curve());
+				  $( "#circular_shield" ).prop('checked', editor.get_circular_shield());
+				  $( "#circular_shield" ).button( "refresh" );
+				  $("#flip_shield").prop('checked', editor.get_flip_shield());
+				  $("#flip_shield").button("refresh");
+			    //$('#locked').prop('checked', false);
+			  }
+		  });
+
+		  // Context toolbar
+		  $("#empty").button({
+		    text: false,
+		    icons: { primary: "ui-icon-close" }
+		  }).click(function () {editor.set_context(null);});
+		  $("#main_frame").button({
+		    text: false,
+		    icons: {primary: "ui-icon-main-frame"}
+		  }).click(function() {editor.set_main_frame_context(1, "main_frame_empty")});
+		  $("#main_frame_3").button({
+		    text: false,
+		    icons: { primary: "ui-icon-main-frame-3" }
+		  }).click(function() {editor.set_main_frame_context(3, "main_frame_empty")});
+		  $("#main_frame_9").button({
+		    text: false,
+		    icons: { primary: "ui-icon-main-frame-9" }
+		  }).click(function() {editor.set_main_frame_context(9, "main_frame_empty")});
+		  $("#sec_frame").button({
+		    text: false,
+		    icons: { primary: "ui-icon-sec-frame" }
+		  }).click(function () {editor.set_sec_frame_context("sec_frame_empty");});
+
+		  $("#main_frame_com").button({
+		    text: false,
+		    icons: {primary: "ui-icon-main-frame"}
+		  }).click(function() {editor.set_main_frame_context(1, "main_frame_base")});
+		  $("#main_frame_3_com").button({
+		    text: false,
+		    icons: { primary: "ui-icon-main-frame-3" }
+		  }).click(function() {editor.set_main_frame_context(3, "main_frame_base")});
+		  $("#main_frame_9_com").button({
+		    text: false,
+		    icons: { primary: "ui-icon-main-frame-9" }
+		  }).click(function() {editor.set_main_frame_context(9, "main_frame_base")});
+		  $("#sec_frame_com").button({
+		    text: false,
+		    icons: { primary: "ui-icon-sec-frame" }
+		  }).click(function () {editor.set_sec_frame_context("sec_frame_base");});
+
+		  $("#main_engine").button({
+		    text: false,
+		    icons: { primary: "ui-icon-engine" }
+		  }).click(function () {editor.set_module_context("linear_nf_engine");});
+		  $("#main_engine_double").button({
+		    text: false,
+		    icons: { primary: "ui-icon-engine-double" }
+		  }).click(function () {editor.set_module_context("linear_nf_engine_2sided");});
+		  $("#shunting_engine").button({
+		    text: false,
+		    icons: { primary: "ui-icon-shuning-engine" }
+		  }).click(function () {editor.set_module_context("shunting_engine");});
+		  $("#thruster").button({
+		    text: false,
+		    icons: { primary: "ui-icon-shuning-engine" }
+		  }).click(function () {editor.set_module_context("thruster");});
+		  $("#radiator_lateral_2sided").button({
+		    text: false,
+		    icons: { primary: "ui-icon-lat-radiator-2" }
+		  }).click(function () {editor.set_module_context("radiator_lateral_2sided");});
+		  $("#radiator_lateral_1sided").button({
+		    text: false,
+		    icons: { primary: "ui-icon-lat-radiator-1" }
+		  }).click(function () {editor.set_module_context("radiator_lateral_1sided");});
+		  $("#hyper_drive").button({
+		    text: false,
+		    icons: { primary: "ui-icon-hyper-drive" }
+		  }).click(function () {editor.set_module_context("hyper_drive");});
+
+		  $("#hyper_ring_thick_1").button({
+		    text: false,
+		    icons: { primary: "ui-icon-hyper-drive" }
+		  }).click(function () {editor.set_module_context("hyper_ring_thick_1");});
+		  $("#hyper_ring_thick_2").button({
+		    text: false,
+		    icons: { primary: "ui-icon-hyper-drive" }
+		  }).click(function () {editor.set_module_context("hyper_ring_thick_2");});
+		  $("#hyper_ring_thick_3").button({
+		    text: false,
+		    icons: { primary: "ui-icon-hyper-drive" }
+		  }).click(function () {editor.set_module_context("hyper_ring_thick_3");});
+		  $("#hyper_ring_thick_4").button({
+		    text: false,
+		    icons: { primary: "ui-icon-hyper-drive" }
+		  }).click(function () {editor.set_module_context("hyper_ring_thick_4");});
+		  $("#hyper_ring_thick_5").button({
+		    text: false,
+		    icons: { primary: "ui-icon-hyper-drive" }
+		  }).click(function () {editor.set_module_context("hyper_ring_thick_5");});
+		  $("#hyper_ring_thick_6").button({
+		    text: false,
+		    icons: { primary: "ui-icon-hyper-drive" }
+		  }).click(function () {editor.set_module_context("hyper_ring_thick_6");});
+
+		  $("#hyper_ring_1").button({
+		    text: false,
+		    icons: { primary: "ui-icon-hyper-drive" }
+		  }).click(function () {editor.set_module_context("hyper_ring_1");});
+		  $("#hyper_ring_2").button({
+		    text: false,
+		    icons: { primary: "ui-icon-hyper-drive" }
+		  }).click(function () {editor.set_module_context("hyper_ring_2");});
+		  $("#hyper_ring_3").button({
+		    text: false,
+		    icons: { primary: "ui-icon-hyper-drive" }
+		  }).click(function () {editor.set_module_context("hyper_ring_3");});
+		  $("#hyper_ring_4").button({
+		    text: false,
+		    icons: { primary: "ui-icon-hyper-drive" }
+		  }).click(function () {editor.set_module_context("hyper_ring_4");});
+		  $("#hyper_ring_5").button({
+		    text: false,
+		    icons: { primary: "ui-icon-hyper-drive" }
+		  }).click(function () {editor.set_module_context("hyper_ring_5");});
+		  $("#hyper_ring_6").button({
+		    text: false,
+		    icons: { primary: "ui-icon-hyper-drive" }
+		  }).click(function () {editor.set_module_context("hyper_ring_6");});
+
+		  $("#propellent_tank").button({
+		    text: false,
+		    icons: { primary: "ui-icon-propellent-tank" }
+		  }).click(function () {editor.set_module_context("propellent_tank");});
+		  $("#fuel_tank").button({
+		    text: false,
+		    icons: { primary: "ui-icon-fuel-tank" }
+		  }).click(function () {editor.set_module_context("fuel_tank");});
+		  $("#toroidal_living_module").button({
+		    text: false,
+		    icons: { primary: "ui-icon-living-module" }
+		  }).click(function () {editor.set_module_context("toroidal_living_module");});
+		  $("#cargo").button({
+		    text: false,
+		    icons: { primary: "ui-icon-hexagon" }
+		  }).click(function () {editor.set_module_context("cargo");});
+		  $("#shuttle_deck_front").button({
+		    text: false,
+		    icons: { primary: "ui-icon-shuttle-deck-front" }
+		  }).click(function () {editor.set_module_context("shuttle_deck_front");});
+		  $("#shuttle_deck_back").button({
+		    text: false,
+		    icons: { primary: "ui-icon-shuttle-deck-back" }
+		  }).click(function () {editor.set_module_context("shuttle_deck_back");});
+		  /*$("#telescope").button({
+		    text: false,
+		    icons: { primary: "ui-icon-telescope" }
+		  }).click(function () {editor.set_context(null);});*/
+		  $("#antenna").button({
+		    text: false,
+		    icons: { primary: "ui-icon-antenna" }
+		  }).click(function () {editor.set_module_context("antenna");});
+		  $("#torpedo").button({
+		    text: false,
+		    icons: { primary: "ui-icon-torpedo" }
+		  }).click(function () {editor.set_module_context("torpedo");});
+		  $("#shild").button({
+		    text: false,
+		    icons: { primary: "ui-icon-shild" }
+		  }).click(function () { editor.set_shield_context("shield_base"); });
+		  $("#shild_diamond").button({
+		    text: false,
+		    icons: { primary: "ui-icon-shild" }
+		  }).click(function () { editor.set_shield_context("shield_diamond"); });
+		  $("#shild_silver").button({
+		    text: false,
+		    icons: { primary: "ui-icon-shild" }
+		  }).click(function () { editor.set_shield_context("shield_silver"); });
+		  $("#shild_gold").button({
+		    text: false,
+		    icons: { primary: "ui-icon-shild" }
+		  }).click(function () { editor.set_shield_context("shield_gold"); });
+		  /*$(function () {
+		    $(document).tooltip();
+		  });*/
+    </script>
+	</body>
+</html>
