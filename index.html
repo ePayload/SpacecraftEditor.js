@@ -71,6 +71,10 @@
         text-align:left;
         position:fixed;
         left:4px;
+				top:100px;
+				bottom:4px;
+				width:200px;
+				/*height:600px;*/
       }
       #slider_grid {
       }
@@ -88,6 +92,20 @@
     <input style="display:none;position:absolute;top:0;left:0" id="saveFileSSS" type="file" nwsaveas />
     <div id="interface_simulator" style="display:none;">
     </div>
+		<div id="ship_props" title="Spacecraft properties" align="center" style="display: none;">
+			<table>
+				<tr><td>Name:</td><td><input type="text" id="ship_name" size="40" /></td></tr>
+				<tr><td>Class:</td><td><select id="ship_class">
+					<option>Starship</option>
+					<option>Planetship</option>
+					<option>Shuttle</option>
+					<option>Drone</option>
+					<option>Station</option>
+				</select></td></tr>
+				<tr><td>Pack:</td><td><input type="text" id="ship_pack" size="40" /></td></tr>
+				<tr><td>Faction:</td><td><input type="text" id="ship_faction" size="40" /></td></tr>
+			</table>
+		</div>
 	  <div id="interface" style="display:none;">
       <table width="100%">
         <tr>
@@ -98,6 +116,7 @@
                   <span id="file">
                     <button id="new">Create new spacecraft</button><!--button id="db_open">Open spacecraft from database</button><button id="db_save">Save spacecraft to database</button--><button id="file_open">Open spacecraft from file</button><button id="file_save">Save spacecraft to file</button>
                   </span>
+                  <button id="ship_props_btn">Edit ship properties</button>
                   <button id="export_sss">Export spacecraft to Space Engine ".sss"</button>
                 </td>
                 <td>
@@ -143,8 +162,10 @@
           <td style="font-weight:bold; font-size: 12pt;" id="radius_amount">0</td>
         </tr>
       </table>
-      <span id="left_toolbar">
-        <span id="context" >
+      <div id="left_toolbar">
+        <div id="contexts">
+				<h3>Construction</h3>
+				<div>
           <input type="radio" id="empty" name="context" /><label for="empty">Nothing</label><br /><br />
           <input type="radio" id="main_frame_com" name="context" checked="checked" /><label for="main_frame_com">Main frame with communications</label>
           <input type="radio" id="main_frame_3_com" name="context" /><label for="main_frame_3_com">Main frame with communications x3</label>
@@ -154,23 +175,39 @@
           <input type="radio" id="main_frame_9" name="context" /><label for="main_frame_9">Main frame x9</label><br /><br />
           <input type="radio" id="sec_frame_com" name="context" /><label for="sec_frame_com">Secondary frame with communications</label>
           <input type="radio" id="sec_frame" name="context" /><label for="sec_frame">Secondary frame</label><br /><br /><br />
+				</div>
+				<h3>Shields</h3>
+				<div>
           <input type="radio" id="shild" name="context" /><label for="shild">Shield</label>
           <input type="radio" id="shild_diamond" name="context" /><label for="shild_diamond">Diamond shield</label><br /><br />
           <input type="radio" id="shild_silver" name="context" /><label for="shild_silver">Silver shield</label>
           <input type="radio" id="shild_gold" name="context" /><label for="shild_gold">Gold shield</label><br /><br /><br />
+				</div>
+				<h3>Hyper drives</h3>
+				<div>
           <input type="radio" id="hyper_drive" name="context" /><label for="hyper_drive">Hyper drive</label><br /><br />
-          <input type="radio" id="hyper_ring_1" name="context" /><label for="hyper_ring_1">Ring Hyper drive size 1</label>
+          <!--input type="radio" id="hyper_ring_1" name="context" /><label for="hyper_ring_1">Ring Hyper drive size 1</label>
           <input type="radio" id="hyper_ring_2" name="context" /><label for="hyper_ring_2">Ring Hyper drive size 2</label>
           <input type="radio" id="hyper_ring_3" name="context" /><label for="hyper_ring_3">Ring Hyper drive size 3</label><br /><br />
           <input type="radio" id="hyper_ring_4" name="context" /><label for="hyper_ring_4">Ring Hyper drive size 4</label>
           <input type="radio" id="hyper_ring_5" name="context" /><label for="hyper_ring_5">Ring Hyper drive size 5</label>
-          <input type="radio" id="hyper_ring_6" name="context" /><label for="hyper_ring_6">Ring Hyper drive size 6</label><br /><br />
-          <input type="radio" id="hyper_ring_thick_1" name="context" /><label for="hyper_ring_thick_1">Thick Ring Hyper drive size 1</label>
+          <input type="radio" id="hyper_ring_6" name="context" /><label for="hyper_ring_6">Ring Hyper drive size 6</label><br /><br /-->
+					<input type="radio" id="hyper_ring_1" name="context" /><label for="hyper_ring_1" title="Thin ring hyper drive"><img src="icons/empty_overlay.png" style="background-image: url('icons/hyper_ring_thin.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
+					<input type="radio" id="hyper_ring_2" name="context" /><label for="hyper_ring_2" title="Thin ring hyper drive x2"><img src="icons/x2_overlay.png" style="background-image: url('icons/hyper_ring_thin.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
+					<input type="radio" id="hyper_ring_3" name="context" /><label for="hyper_ring_3" title="Thin ring hyper drive x3"><img src="icons/x3_overlay.png" style="background-image: url('icons/hyper_ring_thin.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
+					<input type="radio" id="hyper_ring_4" name="context" /><label for="hyper_ring_4" title="Thin ring hyper drive x4"><img src="icons/x4_overlay.png" style="background-image: url('icons/hyper_ring_thin.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
+					<input type="radio" id="hyper_ring_5" name="context" /><label for="hyper_ring_5" title="Thin ring hyper drive x6"><img src="icons/x6_overlay.png" style="background-image: url('icons/hyper_ring_thin.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
+					<input type="radio" id="hyper_ring_6" name="context" /><label for="hyper_ring_6" title="Thin ring hyper drive x8"><img src="icons/x8_overlay.png" style="background-image: url('icons/hyper_ring_thin.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
+          
+					<input type="radio" id="hyper_ring_thick_1" name="context" /><label for="hyper_ring_thick_1">Thick Ring Hyper drive size 1</label>
           <input type="radio" id="hyper_ring_thick_2" name="context" /><label for="hyper_ring_thick_2">Thick Ring Hyper drive size 2</label>
           <input type="radio" id="hyper_ring_thick_3" name="context" /><label for="hyper_ring_thick_3">Thick Ring Hyper drive size 3</label><br /><br />
           <input type="radio" id="hyper_ring_thick_4" name="context" /><label for="hyper_ring_thick_4">Thick Ring Hyper drive size 4</label>
           <input type="radio" id="hyper_ring_thick_5" name="context" /><label for="hyper_ring_thick_5">Thick Ring Hyper drive size 5</label>
           <input type="radio" id="hyper_ring_thick_6" name="context" /><label for="hyper_ring_thick_6">Thick Ring Hyper drive size 6</label><br /><br /><br />
+        </div>
+        <h3>Engines, Radiators, Fuel</h3>
+        <div>
           <input type="radio" id="main_engine" name="context" /><label for="main_engine">Main nuclear fusion engine</label>
           <input type="radio" id="main_engine_double" name="context" /><label for="main_engine_double">Main nuclear fusion engine double sided</label><br /><br />
           <input type="radio" id="shunting_engine" name="context" /><label for="shunting_engine">Shunting engine</label>
@@ -179,15 +216,19 @@
           <input type="radio" id="radiator_lateral_1sided" name="context" /><label for="radiator_lateral_1sided">Radiator 1-sided</label><br /><br />
           <input type="radio" id="propellent_tank" name="context" /><label for="propellent_tank">Propellent tank (metallic H)</label>
           <input type="radio" id="fuel_tank" name="context" /><label for="fuel_tank">Fuel tank (De+He3)</label><br /><br />
+        </div>
+        <h3>Misc</h3>
+        <div>
           <input type="radio" id="toroidal_living_module" name="context" /><label for="toroidal_living_module">Toroidal habitat module</label>
           <input type="radio" id="cargo" name="context" /><label for="cargo">Small cargo</label><br /><br />
           <input type="radio" id="shuttle_deck_front" name="context" /><label for="shuttle_deck_front">Shuttle deck front attachment</label>
           <input type="radio" id="shuttle_deck_back" name="context" /><label for="shuttle_deck_back">Shuttle deck back attachment</label><br /><br />
           <!--input type="radio" id="telescope" name="context" /><label for="telescope">Navigation module</label-->
           <input type="radio" id="antenna" name="context" /><label for="antenna">Communication and navigation module</label><br /><br />
-          <input type="radio" id="torpedo" name="context" /><label for="torpedo">Photon torpedo</label><br /><br />
-        </span>
-      </span>
+          <input type="radio" id="torpedo" name="context" /><label for="torpedo" title="Photon torpedo"><img src="icons/empty_overlay.png" style="background-image: url('icons/torpedo.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label><br /><br />
+        </div>
+        </div>
+      </div>
     </div>
 		<script type="text/javascript">
       // Try to maximize window
@@ -201,6 +242,36 @@
       // Create editor main object
       var editor = new editor_engine();
 		  
+			// Ship properties dialog
+			$("#ship_props").dialog({
+				modal:true,
+				autoOpen: false,
+				resizable:false,
+				buttons:{
+					"OK": function(){
+						editor.ship_props.name = $("#ship_name")[0].value;
+						editor.ship_props.pack = $("#ship_pack")[0].value;
+						editor.ship_props.faction = $("#ship_faction")[0].value;
+						editor.ship_props.class = $("#ship_class")[0].value;
+						$(this).dialog("close");
+					},
+					"Cancel": function(){
+						$(this).dialog("close");
+					}
+				}
+			});
+
+      $("#ship_props_btn").button({
+        text: false,
+        icons: {primary: "ui-icon-gear"}
+      }).click(function(){
+				$("#ship_name")[0].value = editor.ship_props.name;
+				$("#ship_pack")[0].value = editor.ship_props.pack;
+				$("#ship_faction")[0].value = editor.ship_props.faction;
+				$("#ship_class")[0].value = editor.ship_props.class;
+				$("#ship_props").dialog('open')
+			});
+
 		  // Main toolbar
 		  $("#file").buttonset();
 		  $("#new").button({
@@ -246,8 +317,9 @@
 		  }).click(function(){
         if (fs === undefined) {
           var blob = new Blob([editor.ship2json()], { type: "text/js" });
-          saveAs(blob, "ship.json");
+          saveAs(blob, editor.ship_props.name + ".json");
         } else {
+          $("#saveFileJSON")[0].nwsaveas = editor.ship_props.name + ".json";
           $("#saveFileJSON").trigger("click");
         }
 		  });
@@ -349,8 +421,9 @@
 			}).click(function () {
 			  if (fs === undefined) {
 			    var blob = new Blob([editor.generate_ship_confg()], { type: "application/octet-stream" });
-			    saveAs(blob, "ship.sss");
+			    saveAs(blob, editor.ship_props.name + ".sss");
 			  } else {
+			    $("#saveFileSSS")[0].nwsaveas = editor.ship_props.name + ".sss";
 			    $("#saveFileSSS").trigger("click");
 			  }
 			});
@@ -557,28 +630,28 @@
 		  }).click(function () {editor.set_module_context("hyper_ring_thick_6");});
 
 		  $("#hyper_ring_1").button({
-		    text: false,
-		    icons: { primary: "ui-icon-hyper-drive" }
+		    // text: false,
+		    // icons: { primary: "ui-icon-hyper-drive" }
 		  }).click(function () {editor.set_module_context("hyper_ring_1");});
 		  $("#hyper_ring_2").button({
-		    text: false,
-		    icons: { primary: "ui-icon-hyper-drive" }
+		    // text: false,
+		    // icons: { primary: "ui-icon-hyper-drive" }
 		  }).click(function () {editor.set_module_context("hyper_ring_2");});
 		  $("#hyper_ring_3").button({
-		    text: false,
-		    icons: { primary: "ui-icon-hyper-drive" }
+		    // text: false,
+		    // icons: { primary: "ui-icon-hyper-drive" }
 		  }).click(function () {editor.set_module_context("hyper_ring_3");});
 		  $("#hyper_ring_4").button({
-		    text: false,
-		    icons: { primary: "ui-icon-hyper-drive" }
+		    // text: false,
+		    // icons: { primary: "ui-icon-hyper-drive" }
 		  }).click(function () {editor.set_module_context("hyper_ring_4");});
 		  $("#hyper_ring_5").button({
-		    text: false,
-		    icons: { primary: "ui-icon-hyper-drive" }
+		    // text: false,
+		    // icons: { primary: "ui-icon-hyper-drive" }
 		  }).click(function () {editor.set_module_context("hyper_ring_5");});
 		  $("#hyper_ring_6").button({
-		    text: false,
-		    icons: { primary: "ui-icon-hyper-drive" }
+		    // text: false,
+		    // icons: { primary: "ui-icon-hyper-drive" }
 		  }).click(function () {editor.set_module_context("hyper_ring_6");});
 
 		  $("#propellent_tank").button({
@@ -614,8 +687,8 @@
 		    icons: { primary: "ui-icon-antenna" }
 		  }).click(function () {editor.set_module_context("antenna");});
 		  $("#torpedo").button({
-		    text: false,
-		    icons: { primary: "ui-icon-torpedo" }
+		    //text: false,
+		    //icons: { primary: "ui-icon-torpedo" }
 		  }).click(function () {editor.set_module_context("torpedo");});
 		  $("#shild").button({
 		    text: false,
@@ -636,6 +709,7 @@
 		  /*$(function () {
 		    $(document).tooltip();
 		  });*/
+			$("#contexts").accordion({fillSpace:true});
     </script>
 	</body>
 </html>

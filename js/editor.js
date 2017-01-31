@@ -180,12 +180,19 @@ function editor_engine() {
   this.i, this.intersector;
   this.frame6_geo, this.frame_6x3geo, this.frame_6x9geo;
   
+  this.ship_props = {
+    name: "Ship",
+    class: "Starship",
+    pack: "",
+    faction: ""
+  };
+
   this.ship = {
     "modules": [],
     "frame_main": [],
     "frame_sec": [],
     "shilds":[]
-  }
+  };
   
   this.cur_context = null, this.prev_context = null;
   this.modules_context = new ModulesContext(this);
@@ -517,6 +524,13 @@ function editor_engine() {
     this.scene.add(this.shild_frames);
 
     // Recreating ship
+    this.ship_props = {
+      name: "Ship",
+      class: "Starship",
+      pack: "",
+      faction: ""
+    };
+
     this.ship = {
       "modules": [],
       "frame_main": [],
@@ -529,6 +543,7 @@ function editor_engine() {
   this.ship2json = function() {
     var ship_store = {
       "version":2,
+      "properties":this.ship_props,
       "modules":{},
       "frame_main":{},
       "frame_sec":{},
@@ -622,6 +637,14 @@ function editor_engine() {
     var ship_store = JSON.parse(a_json);
     if (ship_store.version > 2) {
       throw "Unsupported version";
+    }
+
+    // Restore properties
+    if (typeof ship_store.properties !== "undefined") {
+      this.ship_props.name = typeof ship_store.properties.name === "undefined" ? "Ship" : ship_store.properties.name;
+      this.ship_props.class = typeof ship_store.properties.class === "undefined" ? "Starship" : ship_store.properties.class;
+      this.ship_props.pack = typeof ship_store.properties.pack === "undefined" ? "" : ship_store.properties.pack;
+      this.ship_props.faction = typeof ship_store.properties.faction === "undefined" ? "" : ship_store.properties.faction;
     }
 
     // Restore modules
@@ -1571,8 +1594,11 @@ function editor_engine() {
     if (a_name == null) {
       a_name = "Ship";
     }
-    var header_str = "Name    \"" + a_name + "\"\n" +
-                     "Class   \"" + (hyper ? "Starship" : "Planetship") + "\"\n" +
+
+    var header_str = "Name    \"" + this.ship_props.name + "\"\n" +
+                     "Class   \"" + this.ship_props.class + "\"\n" +
+                     "Pack   \"" + this.ship_props.pack + "\"\n" +
+                     "Faction   \"" + this.ship_props.faction + "\"\n" +
                      "Mass     " + (mass * 1000) + "\n" + 
                      "MainEngines     " + (MainEngines / mass * 9.8) + "\n" + 
                      "RetroEngines     " + (RetroEngines / mass * 9.8) + "\n" + 
@@ -1770,6 +1796,7 @@ function editor_engine() {
     }
 
     document.getElementById("interface").style.display = 'block';
+    $("#contexts").accordion("resize");
 
     // Hide loading label
     _this.loading.style.display = 'none';
@@ -2419,6 +2446,7 @@ function editor_engine() {
     _this.mouse2D.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
     _this.camera_control.onMouseMove(event);
+    return false;
   }
   
   this.onDocumentMouseDown = function(event) {
@@ -2456,6 +2484,7 @@ function editor_engine() {
     } else {
       _this.camera_control.onMouseDown(event);
     }
+    return false;
   }
   
   this.onDocumentMouseUp = function(event) {
@@ -2467,6 +2496,7 @@ function editor_engine() {
         _this.cur_context.mouse_up(_this.ray);
       }
     }
+    return false;
   }
   
   this.onMouseWheel = function(e) {
@@ -2486,7 +2516,9 @@ function editor_engine() {
         }
         break;
       }
+      case 27: $("#empty")[0].click(); //.button();// _this.set_context(_this.no)
     }
+    return false;
   }
 
   this.onDocumentKeyUp = function(event) {
@@ -2498,6 +2530,7 @@ function editor_engine() {
         break;
       }
     }
+    return false;
   }
   
   this.onWindowResize = function(event) {
@@ -2508,6 +2541,8 @@ function editor_engine() {
 
     _this.camera.aspect = _this.SCREEN_WIDTH / _this.SCREEN_HEIGHT;
     _this.camera.updateProjectionMatrix();
+
+    $('#contexts').accordion('resize');
   }
 
 

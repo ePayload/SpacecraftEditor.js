@@ -1,0 +1,4 @@
+*.pak
+*.bin
+*.dat
+*nacl_*
