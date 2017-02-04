@@ -477,7 +477,7 @@ function editor_engine() {
     this.stats = new Stats();
     this.stats.domElement.style.position = 'absolute';
     this.stats.domElement.style.top = '0px';
-    this.stats.domElement.style.left = '200px';
+    this.stats.domElement.style.left = '230px';
     extended_toolbar.appendChild(this.stats.domElement);
 
     // Event handlers
@@ -2483,6 +2483,7 @@ function editor_engine() {
       }*/
     } else {
       _this.camera_control.onMouseDown(event);
+      document.getElementById("interface").style.display = 'none';
     }
     return false;
   }
@@ -2491,6 +2492,7 @@ function editor_engine() {
     event.preventDefault();
     if (event.button != 0) {
       _this.camera_control.onMouseUp(event);
+      document.getElementById("interface").style.display = 'block';
     } else {
       if (_this.cur_context != null) {
         _this.cur_context.mouse_up(_this.ray);
@@ -2590,4 +2592,65 @@ function editor_engine() {
   this.models_loader = new ModelsLoader(this.on_models_loaded);
   this.texture_manager = new TextureManager();
   this.init();
+
+  this.calc_stat = function() {
+    var stat = {
+      mass: 0,
+      forward: 0,
+      reverse: 0,
+      thrusters: 0,
+      warp_boost_log: 0
+    }
+
+    var ship_objects = [
+      {arr: this.modules, desc: modules}, 
+      {arr: this.main_frames, name: "Frame", desc: main_frames},
+      {arr: this.sec_frames, name: "SecFrame", desc: sec_frames},
+      {arr: this.shilds, name: "Shield", desc: shields},
+      {arr: this.shild_frames, config: "shield_frame", name: "ShieldFrame"}
+    ];
+
+    for_each(ship_objects, function(i, sub_obj) {
+      for_each(sub_obj.arr.children, function(j, obj) {
+        var config = sub_obj.config;
+        if (config === undefined) {
+          config = obj.mod;
+        }
+        if (sub_obj.desc !== undefined) {
+          var desc = sub_obj.desc[config];
+          stat.mass += desc.mass;
+          if (desc.MainEngines !== undefined) {
+            stat.forward += desc.MainEngines;
+          }
+          if (desc.RetroEngines !== undefined) {
+            stat.reverse += desc.RetroEngines;
+          }
+          if (desc.CorrEngines !== undefined) {
+            stat.thrusters += desc.CorrEngines;
+          }
+        }
+      });
+    });
+
+    if (stat.mass > 0) {
+      stat.forward = stat.forward / stat.mass;
+      stat.reverse = stat.reverse / stat.mass;
+      stat.thrusters = stat.thrusters / stat.mass;
+    }
+    return stat;
+  }
+
+  this.update_stat = function() {
+    var stat = _this.calc_stat();
+
+    $( "#ship_mass" ).text("" + stat.mass + "t");
+    $( "#ship_forward_acceleration" ).text("" + stat.forward.toFixed(4) + "g");
+    $( "#ship_reverse_acceleration" ).text("" + stat.reverse.toFixed(4) + "g");
+    $( "#ship_thrusters_acceleration" ).text("" + stat.thrusters.toFixed(4) + "g");
+    $( "#ship_warp_boost_log" ).text("" + stat.warp_boost_log);
+  }
+
+  this.update = function() {
+    _this.update_stat();
+  }
 }

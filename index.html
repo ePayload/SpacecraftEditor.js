@@ -72,10 +72,17 @@
         position:fixed;
         left:4px;
 				top:100px;
-				bottom:4px;
-				width:200px;
+				bottom:120px;
+				width:270px;
 				/*height:600px;*/
       }
+			#ship_info {
+        position:fixed;
+        left:4px;
+				height:110px;
+				bottom:4px;
+				width:270px;
+			}
       #slider_grid {
       }
       /*label {
@@ -185,8 +192,8 @@
 				</div>
 				<h3>Hyper drives</h3>
 				<div>
-          <input type="radio" id="hyper_drive" name="context" /><label for="hyper_drive">Hyper drive</label><br /><br />
-          <!--input type="radio" id="hyper_ring_1" name="context" /><label for="hyper_ring_1">Ring Hyper drive size 1</label>
+          <!--input type="radio" id="hyper_drive" name="context" /><label for="hyper_drive">Hyper drive</label><br /><br />
+          <input type="radio" id="hyper_ring_1" name="context" /><label for="hyper_ring_1">Ring Hyper drive size 1</label>
           <input type="radio" id="hyper_ring_2" name="context" /><label for="hyper_ring_2">Ring Hyper drive size 2</label>
           <input type="radio" id="hyper_ring_3" name="context" /><label for="hyper_ring_3">Ring Hyper drive size 3</label><br /><br />
           <input type="radio" id="hyper_ring_4" name="context" /><label for="hyper_ring_4">Ring Hyper drive size 4</label>
@@ -199,12 +206,19 @@
 					<input type="radio" id="hyper_ring_5" name="context" /><label for="hyper_ring_5" title="Thin ring hyper drive x6"><img src="icons/x6_overlay.png" style="background-image: url('icons/hyper_ring_thin.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
 					<input type="radio" id="hyper_ring_6" name="context" /><label for="hyper_ring_6" title="Thin ring hyper drive x8"><img src="icons/x8_overlay.png" style="background-image: url('icons/hyper_ring_thin.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
           
-					<input type="radio" id="hyper_ring_thick_1" name="context" /><label for="hyper_ring_thick_1">Thick Ring Hyper drive size 1</label>
+					<!--input type="radio" id="hyper_ring_thick_1" name="context" /><label for="hyper_ring_thick_1">Thick Ring Hyper drive size 1</label>
           <input type="radio" id="hyper_ring_thick_2" name="context" /><label for="hyper_ring_thick_2">Thick Ring Hyper drive size 2</label>
           <input type="radio" id="hyper_ring_thick_3" name="context" /><label for="hyper_ring_thick_3">Thick Ring Hyper drive size 3</label><br /><br />
           <input type="radio" id="hyper_ring_thick_4" name="context" /><label for="hyper_ring_thick_4">Thick Ring Hyper drive size 4</label>
           <input type="radio" id="hyper_ring_thick_5" name="context" /><label for="hyper_ring_thick_5">Thick Ring Hyper drive size 5</label>
-          <input type="radio" id="hyper_ring_thick_6" name="context" /><label for="hyper_ring_thick_6">Thick Ring Hyper drive size 6</label><br /><br /><br />
+          <input type="radio" id="hyper_ring_thick_6" name="context" /><label for="hyper_ring_thick_6">Thick Ring Hyper drive size 6</label><br /><br /><br /-->
+
+					<input type="radio" id="hyper_ring_thick_1" name="context" /><label for="hyper_ring_thick_1" title="Thick ring hyper drive"><img src="icons/empty_overlay.png" style="background-image: url('icons/hyper_ring_thick.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
+					<input type="radio" id="hyper_ring_thick_2" name="context" /><label for="hyper_ring_thick_2" title="Thick ring hyper drive x2"><img src="icons/x2_overlay.png" style="background-image: url('icons/hyper_ring_thick.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
+					<input type="radio" id="hyper_ring_thick_3" name="context" /><label for="hyper_ring_thick_3" title="Thick ring hyper drive x3"><img src="icons/x3_overlay.png" style="background-image: url('icons/hyper_ring_thick.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
+					<input type="radio" id="hyper_ring_thick_4" name="context" /><label for="hyper_ring_thick_4" title="Thick ring hyper drive x4"><img src="icons/x4_overlay.png" style="background-image: url('icons/hyper_ring_thick.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
+					<input type="radio" id="hyper_ring_thick_5" name="context" /><label for="hyper_ring_thick_5" title="Thick ring hyper drive x6"><img src="icons/x6_overlay.png" style="background-image: url('icons/hyper_ring_thick.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
+					<input type="radio" id="hyper_ring_thick_6" name="context" /><label for="hyper_ring_thick_6" title="Thick ring hyper drive x8"><img src="icons/x8_overlay.png" style="background-image: url('icons/hyper_ring_thick.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
         </div>
         <h3>Engines, Radiators, Fuel</h3>
         <div>
@@ -225,10 +239,22 @@
           <input type="radio" id="shuttle_deck_back" name="context" /><label for="shuttle_deck_back">Shuttle deck back attachment</label><br /><br />
           <!--input type="radio" id="telescope" name="context" /><label for="telescope">Navigation module</label-->
           <input type="radio" id="antenna" name="context" /><label for="antenna">Communication and navigation module</label><br /><br />
-          <input type="radio" id="torpedo" name="context" /><label for="torpedo" title="Photon torpedo"><img src="icons/empty_overlay.png" style="background-image: url('icons/torpedo.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label><br /><br />
+          <input type="radio" id="torpedo" name="context" /><label for="torpedo" title="Photon torpedo"><img src="icons/empty_overlay.png" width=32 height=32 style="background-image: url('icons/torpedo.png'); background-size: 100%; margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label><br /><br />
         </div>
         </div>
       </div>
+			<div id="ship_info">
+				<h3 class="ui-widget ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-top">Ship info</h3>
+				<div class="ui-widget ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom ui-accordion-content-active">
+					<table style="text-align: left" width="100%">
+						<tr><td>Mass:</td><td id="ship_mass">0t</td></tr>
+						<tr><td>Forward acceleration:</td><td id="ship_forward_acceleration">0g</td></tr>
+						<tr><td>Reverse acceleration:</td><td id="ship_reverse_acceleration">0g</td></tr>
+						<tr><td>Thrusters acceleration:</td><td id="ship_thrusters_acceleration">0g</td></tr>
+						<tr><td>Warp boost log:</td><td id="ship_warp_boost_log">0</td></tr>
+					</ul>
+				</div>
+			</div>
     </div>
 		<script type="text/javascript">
       // Try to maximize window
@@ -599,34 +625,34 @@
 		    text: false,
 		    icons: { primary: "ui-icon-lat-radiator-1" }
 		  }).click(function () {editor.set_module_context("radiator_lateral_1sided");});
-		  $("#hyper_drive").button({
-		    text: false,
-		    icons: { primary: "ui-icon-hyper-drive" }
-		  }).click(function () {editor.set_module_context("hyper_drive");});
+		  // $("#hyper_drive").button({
+		  //   text: false,
+		  //   icons: { primary: "ui-icon-hyper-drive" }
+		  // }).click(function () {editor.set_module_context("hyper_drive");});
 
 		  $("#hyper_ring_thick_1").button({
-		    text: false,
-		    icons: { primary: "ui-icon-hyper-drive" }
+		    // text: false,
+		    // icons: { primary: "ui-icon-hyper-drive" }
 		  }).click(function () {editor.set_module_context("hyper_ring_thick_1");});
 		  $("#hyper_ring_thick_2").button({
-		    text: false,
-		    icons: { primary: "ui-icon-hyper-drive" }
+		    // text: false,
+		    // icons: { primary: "ui-icon-hyper-drive" }
 		  }).click(function () {editor.set_module_context("hyper_ring_thick_2");});
 		  $("#hyper_ring_thick_3").button({
-		    text: false,
-		    icons: { primary: "ui-icon-hyper-drive" }
+		    // text: false,
+		    // icons: { primary: "ui-icon-hyper-drive" }
 		  }).click(function () {editor.set_module_context("hyper_ring_thick_3");});
 		  $("#hyper_ring_thick_4").button({
-		    text: false,
-		    icons: { primary: "ui-icon-hyper-drive" }
+		    // text: false,
+		    // icons: { primary: "ui-icon-hyper-drive" }
 		  }).click(function () {editor.set_module_context("hyper_ring_thick_4");});
 		  $("#hyper_ring_thick_5").button({
-		    text: false,
-		    icons: { primary: "ui-icon-hyper-drive" }
+		    // text: false,
+		    // icons: { primary: "ui-icon-hyper-drive" }
 		  }).click(function () {editor.set_module_context("hyper_ring_thick_5");});
 		  $("#hyper_ring_thick_6").button({
-		    text: false,
-		    icons: { primary: "ui-icon-hyper-drive" }
+		    // text: false,
+		    // icons: { primary: "ui-icon-hyper-drive" }
 		  }).click(function () {editor.set_module_context("hyper_ring_thick_6");});
 
 		  $("#hyper_ring_1").button({

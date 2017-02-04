@@ -90,6 +90,7 @@ MainFrameContext = function(a_editor) {
           var pos = positions[i].pos;
           this.m_editor.add_main_frame(pos.x, pos.y, pos.z, len, this.m_module);
         }
+        this.m_editor.update();
       }
     }
   };
@@ -158,6 +159,7 @@ ModulesContext = function(a_editor) {
           }
         }
       }
+      this.m_editor.update();
       //this.m_editor.add_module(this.m_module, this.m_roll_over_mesh.position, this.m_roll_over_mesh.rotation.z);
     }
     /*var intersector = intersect(ray,
@@ -277,6 +279,7 @@ SecFrameContext = function(a_editor) {
           editor.add_sec_frame(start_positions[i].pos, end_positions[i].pos, this.m_module);
         }
       }
+      this.m_editor.update();
     }
     /*if (this.m_roll_over_mesh.visible) {
       var positions = this.m_editor.get_symmetry_positions(
@@ -395,6 +398,7 @@ ShildContext = function(a_editor) {
         pos_tri.z = this.m_roll_over_mesh.layer;
         this.m_editor.add_shild(pos_tri, this.m_module);
       }
+      this.m_editor.update();
     }
   };
 
@@ -442,6 +446,7 @@ DeleteContext = function(a_editor) {
     if (this.m_selected_mesh != null) {
       this.m_editor.delete_object(this.m_selected_mesh);
       this.m_selected_mesh = null;
+      this.m_editor.update();
     }
   };
 
