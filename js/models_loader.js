@@ -40,11 +40,21 @@ ModelsLoader = function(a_onload) {
   }
 }
 
-TextureManager = function() {
+TextureManager = function(a_onload) {
+  // Callback on load all textures
+  this.m_onload = a_onload;
   this.m_textures = {};
+  this.m_pending_loading = 0;
   this.get_texture = function(a_url) {
     if (this.m_textures[a_url] == undefined) {
-      this.m_textures[a_url] = THREE.ImageUtils.loadTexture(a_url);
+      ++this.m_pending_loading;
+      var _this = this;
+      this.m_textures[a_url] = THREE.ImageUtils.loadTexture(a_url, {}, function(){
+        --_this.m_pending_loading;
+        if (_this.m_pending_loading == 0) {
+          _this.m_onload();
+        }
+      });
     }
     return this.m_textures[a_url];
   }

@@ -40,10 +40,18 @@
 			body {
 				font-family: Monospace;
 				-webkit-user-select: none;
-				background-color: #000000;
+				/*background-color: #000000;*/
 			  color:White;
 				margin: 0px;
 				overflow: hidden;
+				background: #111;
+				background: -webkit-linear-gradient(top, #000 0%, #333 100%);
+				/*background: -moz-linear-gradient(top, #131313 0%, #595959 100%);
+				background: -webkit-gradient(left top, left bottom, color-stop(0%, #131313), color-stop(100%, #595959));
+				background: -o-linear-gradient(top, #131313 0%, #595959 100%);
+				background: -ms-linear-gradient(top, #131313 0%, #595959 100%);
+				background: linear-gradient(to bottom, #131313 0%, #595959 100%);
+				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#131313', endColorstr='#595959', GradientType=0 );*/
 			}
 
 			#oldie { background-color: #ddd !important }
@@ -72,14 +80,14 @@
         position:fixed;
         left:4px;
 				top:100px;
-				bottom:120px;
+				bottom:150px;
 				width:270px;
 				/*height:600px;*/
       }
 			#ship_info {
         position:fixed;
         left:4px;
-				height:110px;
+				height:142px;
 				bottom:4px;
 				width:270px;
 			}
@@ -123,13 +131,13 @@
                   <span id="file">
                     <button id="new">Create new spacecraft</button><!--button id="db_open">Open spacecraft from database</button><button id="db_save">Save spacecraft to database</button--><button id="file_open">Open spacecraft from file</button><button id="file_save">Save spacecraft to file</button>
                   </span>
-                  <button id="ship_props_btn">Edit ship properties</button>
                   <button id="export_sss">Export spacecraft to Space Engine ".sss"</button>
                 </td>
                 <td>
                   <span id="extended_toolbar" style="display:none;">
                     <button id="export">Export spacecraft to Space Engine as single model ".sm"</button>
                     <button id="export_obj">Export spacecraft to Third-Party editors ".obj"</button>
+										<button id="save_png" onclick="editor.save();">Create screenshot</button>
                   </span>
                 </td>
               </tr>
@@ -216,9 +224,9 @@
 					<input type="radio" id="hyper_ring_thick_1" name="context" /><label for="hyper_ring_thick_1" title="Thick ring hyper drive"><img src="icons/empty_overlay.png" style="background-image: url('icons/hyper_ring_thick.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
 					<input type="radio" id="hyper_ring_thick_2" name="context" /><label for="hyper_ring_thick_2" title="Thick ring hyper drive x2"><img src="icons/x2_overlay.png" style="background-image: url('icons/hyper_ring_thick.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
 					<input type="radio" id="hyper_ring_thick_3" name="context" /><label for="hyper_ring_thick_3" title="Thick ring hyper drive x3"><img src="icons/x3_overlay.png" style="background-image: url('icons/hyper_ring_thick.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
-					<input type="radio" id="hyper_ring_thick_4" name="context" /><label for="hyper_ring_thick_4" title="Thick ring hyper drive x4"><img src="icons/x4_overlay.png" style="background-image: url('icons/hyper_ring_thick.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
-					<input type="radio" id="hyper_ring_thick_5" name="context" /><label for="hyper_ring_thick_5" title="Thick ring hyper drive x6"><img src="icons/x6_overlay.png" style="background-image: url('icons/hyper_ring_thick.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
-					<input type="radio" id="hyper_ring_thick_6" name="context" /><label for="hyper_ring_thick_6" title="Thick ring hyper drive x8"><img src="icons/x8_overlay.png" style="background-image: url('icons/hyper_ring_thick.png'); margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
+					<input type="radio" id="hyper_ring_thick_4" name="context" /><label for="hyper_ring_thick_4" title="Thick ring hyper drive x4"><img id="hrs4" src="icons/x4_overlay.png" style="background-image: url('icons/hyper_ring_thick.png'); background-size: 100%; margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
+					<input type="radio" id="hyper_ring_thick_5" name="context" /><label for="hyper_ring_thick_5" title="Thick ring hyper drive x6"><img id="hrs6" src="icons/x6_overlay.png" style="background-image: url('icons/hyper_ring_thick.png'); background-size: 100%; margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
+					<input type="radio" id="hyper_ring_thick_6" name="context" /><label for="hyper_ring_thick_6" title="Thick ring hyper drive x8"><img id="hrs8" src="icons/x8_overlay.png" style="background-image: url('icons/hyper_ring_thick.png'); background-size: 100%; margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label>
         </div>
         <h3>Engines, Radiators, Fuel</h3>
         <div>
@@ -239,14 +247,20 @@
           <input type="radio" id="shuttle_deck_back" name="context" /><label for="shuttle_deck_back">Shuttle deck back attachment</label><br /><br />
           <!--input type="radio" id="telescope" name="context" /><label for="telescope">Navigation module</label-->
           <input type="radio" id="antenna" name="context" /><label for="antenna">Communication and navigation module</label><br /><br />
-          <input type="radio" id="torpedo" name="context" /><label for="torpedo" title="Photon torpedo"><img src="icons/empty_overlay.png" width=32 height=32 style="background-image: url('icons/torpedo.png'); background-size: 100%; margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label><br /><br />
+          <input type="radio" id="torpedo" name="context" /><label for="torpedo" title="Photon torpedo"><img src="icons/empty_overlay.png" id="torpedo_icon" style="background-image: url('icons/torpedo.png'); background-size: 100%; margin-right: -8px;margin-left: -8px;margin-bottom: -4px;" /></label><br /><br />
         </div>
         </div>
       </div>
 			<div id="ship_info">
-				<h3 class="ui-widget ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-top">Ship info</h3>
+				<div class="ui-widget ui-accordion-header ui-helper-reset ui-state-default ui-accordion-icons ui-corner-top">
+					<table style="text-align: center; margin: 0; padding: 0" cellspacing=0 cellpadding=0  width="100%"><tr>
+						<td>&nbsp;Ship info</td>
+						<td style="text-align: right;"><button id="ship_props_btn">Edit ship properties</button></td>
+					</tr></table>
+				</div>
 				<div class="ui-widget ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom ui-accordion-content-active">
 					<table style="text-align: left" width="100%">
+						<tr><td>Name:</td><td id="ship_info_name">Ship</td></tr>
 						<tr><td>Mass:</td><td id="ship_mass">0t</td></tr>
 						<tr><td>Forward acceleration:</td><td id="ship_forward_acceleration">0g</td></tr>
 						<tr><td>Reverse acceleration:</td><td id="ship_reverse_acceleration">0g</td></tr>
@@ -279,6 +293,7 @@
 						editor.ship_props.pack = $("#ship_pack")[0].value;
 						editor.ship_props.faction = $("#ship_faction")[0].value;
 						editor.ship_props.class = $("#ship_class")[0].value;
+						editor.update_stat();
 						$(this).dialog("close");
 					},
 					"Cancel": function(){
@@ -289,7 +304,7 @@
 
       $("#ship_props_btn").button({
         text: false,
-        icons: {primary: "ui-icon-gear"}
+        icons: {primary: "ui-icon-pencil"}
       }).click(function(){
 				$("#ship_name")[0].value = editor.ship_props.name;
 				$("#ship_pack")[0].value = editor.ship_props.pack;

@@ -464,7 +464,7 @@ function editor_engine() {
     this.mouse2D = new THREE.Vector3(0, 10000, 0.5);
 
     // Renderer
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer : true });
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer : true, alpha: true });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
     this.renderer.physicallyBasedShading = true;
@@ -538,6 +538,7 @@ function editor_engine() {
       "shilds":[]
     }
     this.set_ref_plane();
+    this.update_stat();
   }
   
   this.ship2json = function() {
@@ -673,7 +674,7 @@ function editor_engine() {
       for_each(ship_store.shilds, function(i, a_layer) {
         _this.ship.shilds[a_layer.layer] = {
           curve : a_layer.curve,
-          line : a_layer.line,
+          line : a_layer.line != undefined ? a_layer.line : 0,
           radius : a_layer.radius,
           circular: false,
           flip: false,
@@ -721,6 +722,7 @@ function editor_engine() {
       });
     }
     this.set_ref_plane();
+    this.update_stat();
   }
 
   this.generate_sm_multy_conv = function () {// generate_sm_multy_conv
@@ -1771,11 +1773,67 @@ function editor_engine() {
     return mesh;
   }
 
-  this.on_models_loaded = function () {
-    // Main frame geometry
-    /*_this.frame_6geo = _this.models_loader.model("frame6");
-    _this.frame_6x3geo = _this.models_loader.model("frame6x3");
-    _this.frame_6x9geo = _this.models_loader.model("frame6x9");*/
+  this.generate_modules_buttons = function() {
+    // Backup
+    /*var camera_pos = _this.camera.position.clone();
+    var camera_rot = _this.camera.quaternion.clone();
+    var camera_mat = _this.camera.matrix.clone();*/
+
+    // Common setup
+    var camera = new THREE.PerspectiveCamera(20, 1, 10, 2000);
+    camera.updateProjectionMatrix();
+
+    _this.renderer.setSize(128, 128);
+
+    // Module setup
+    var mod_name = "hyper_ring_thick_1";
+    //var mod_name = "torpedo";
+    var mod = modules[mod_name];
+    var geo = _this.models_loader.model(mod_name);
+    var mat = materials[mod.material].mainMaterial;
+    var mesh = new THREE.Mesh(geo, mat);
+    _this.scene.add(mesh);
+    _this.set_grid_visible(false);
+    _this.set_main_axis_visible(false);
+
+    geo.computeBoundingBox();
+
+    var target = new THREE.Vector3();
+    target.add(geo.boundingBox.max, geo.boundingBox.min);
+    target.multiplyScalar(0.5);
+
+    var dist_vec = new THREE.Vector3();
+    dist_vec.sub(geo.boundingBox.max, target);
+    var dist = dist_vec.length() * 3.0;
+    var r = mesh.boundRadius * 3.3;
+    if (r < dist) {
+      dist = r;
+    }
+    camera.position = new THREE.Vector3(dist, dist, dist);
+    camera.position.addSelf(target);
+    camera.lookAt(target);
+
+    _this.renderer.render(_this.scene, camera);
+    _this.scene.remove(mesh);
+
+    $("#hrs4").css("background-image","url("+this.renderer.domElement.toDataURL('image/png')+")");
+    $("#hrs6").css("background-image","url("+this.renderer.domElement.toDataURL('image/png')+")");
+    $("#hrs8").css("background-image","url("+this.renderer.domElement.toDataURL('image/png')+")");
+    //$("#torpedo_icon").css("background-image","url("+this.renderer.domElement.toDataURL('image/png')+")");
+    //$("#torpedo_icon")[0].src = _this.renderer.domElement.toDataURL('image/png');
+    //_this.save();
+
+    // Cleanup
+    /*_this.camera.position = camera_pos;
+    _this.camera.quaternion = camera_rot;
+    _this.camera.matrixWorldNeedsUpdate = true;*/
+    _this.set_grid_visible(true);
+    _this.set_main_axis_visible(true);
+    _this.onWindowResize();
+  }
+
+  this.on_textures_loaded = function() {
+    _this.generate_modules_buttons();
 
     // Set context
     _this.set_context(_this.main_frame_context);
@@ -1800,6 +1858,13 @@ function editor_engine() {
 
     // Hide loading label
     _this.loading.style.display = 'none';
+  }
+
+  this.on_models_loaded = function () {
+    // Main frame geometry
+    /*_this.frame_6geo = _this.models_loader.model("frame6");
+    _this.frame_6x3geo = _this.models_loader.model("frame6x3");
+    _this.frame_6x9geo = _this.models_loader.model("frame6x9");*/
 
     // Simplex calculations
     /*var simplex = new THREE.Mesh(_this.models_loader.model("shild"), _this.mainMaterial);
@@ -2590,7 +2655,7 @@ function editor_engine() {
   }
   
   this.models_loader = new ModelsLoader(this.on_models_loaded);
-  this.texture_manager = new TextureManager();
+  this.texture_manager = new TextureManager(this.on_textures_loaded);
   this.init();
 
   this.calc_stat = function() {
@@ -2643,6 +2708,7 @@ function editor_engine() {
   this.update_stat = function() {
     var stat = _this.calc_stat();
 
+    $( "#ship_info_name" ).text("" + _this.ship_props.name);
     $( "#ship_mass" ).text("" + stat.mass + "t");
     $( "#ship_forward_acceleration" ).text("" + stat.forward.toFixed(4) + "g");
     $( "#ship_reverse_acceleration" ).text("" + stat.reverse.toFixed(4) + "g");
